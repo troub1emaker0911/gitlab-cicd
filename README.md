@@ -171,9 +171,12 @@ docker-deploy:
 
 ### 三、提交更新并自动部署到服务器
 
-#### 1.从本仓库下载testgolang文件夹，上传到192.168.2.100主机的/root/project/目录下
+#### 1.从本仓库克隆代码到192.168.2.100主机的/root/project/目录下
 
 runner注册成功后，通过git命令提交更新到golang分支，只要golang分支有修改，都会执行Job的任务。
+
+#### 2.从192.168.2.100上修改文件内容后，提交更新到golang分支
+
 > git push 代码到`golang分支`, gitlab-ci的功能自动扫描`.gitlai-ci.yml`文件，并启动
 ![img](./imgs/6gitlab.jpg)
 > 最终的执行结果gitlab的CI/CD菜单里的`jobs`里呈现
