@@ -1,11 +1,15 @@
-### gitlab-cicd
-`快速掌握并使用gitlab-ci工具快速代码编译、集成和发布`
+### gitlab-cicd   快速掌握并使用gitlab-ci工具快速代码编译、集成和发布
+
+说明：本项目出处为https://github.com/yangshun2005/gitlab-cicd。本人只是在此基础上修改和完善。
+
 
 [课程学习源码和文档](https://github.com/yangshun2005/gitlab-cicd)
 
 [学习视频地址](https://www.bilibili.com/video/av92022124/)
 
-一、准备工作
+### 一、项目概述
+
+1.准备工作
 
 1.1. gitlab环境：代码仓库和编译器
 
@@ -17,9 +21,9 @@
 
 1.5. .gitlab-ci.yml ：CI/CD的gitlab机器运行逻辑的操作文档
 
-二、环境配置
+2.环境配置
 
-2.1. 准备一台，为项目注册执行部署任务的Runner服务器
+2.1. 准备一台，为项目注册执行部署任务的Gitlab-Runner服务器
 
 2.2. 将runner机器与gitlab的cicd`注册`,完成链接并打通
 
@@ -32,9 +36,59 @@
 3.3 测试结果
 
 
-### 一、准备工作
+### 二、准备工作
 
-1. gitlab环境（为了方便，使用官方的托管仓库）
+|服务器名称|IP地址|操作系统|软件环境|
+|--------|-----|-----|-----|
+|gitlab|192.168.2.200|CenOS 7.6 64bit|gitlab-10.0.0|
+|gitlab-runner|192.168.2.100|CenOS 7.6 64bit|gitlab-runner,docker-ce,git|
+
+1.Linux安装gitlab（192.168.2.200）
+
+这里采用rpm方式安装gitlab。
+```
+1)下载gitlab镜像（以CentOS7.6为例）
+cd /root/software
+wget https://mirrors.tuna.tsinghua.edu.cn/gitlab-ce/yum/el7/gitlab-ce-10.0.0-ce.0.el7.x86_64.rpm
+2)安装gitlab
+rpm -ivh gitlab-ce-10.0.0-ce.0.el7.x86_64.rpm
+3)配置gitlab
+vim /etc/gitlab/gitlab.rb
+external_url 'http://192.168.2.200:8081'         #设置gitlab端口为8081
+4)启动gitlab
+cd /etc/gitlab/
+gitlab-ctl reconfigure
+5)打开浏览器，访问gitlab
+http://192.168.2.200:8081         #提示修改root密码
+```
+
+2.安装docker-ce和gitlab-runner(192.168.2.100)
+
+* 安装docker-ce
+>docker-ce安装方法:
+>> https://www.cnblogs.com/mengyucloud/p/12240033.html
+
+* 安装gitlab-runner
+```
+1)下载gitlab-runner文件并上传到192.168.2.100机器上的指定目录，这里上传到/root/software/
+根据操作系统版本选择指定的文件，这里选择Linux的rpm包进行安装。
+下载地址：https://gitlab-runner-downloads.s3.amazonaws.com/latest/index.html  #该地址有时会出现无法打开的情况
+        https://docs.gitlab.com/runner/install/linux-manually.html
+2)安装gitlab-runner
+cd /root/software/
+rpm -ivh gitlab-runner_amd64.rpm
+3)查看gitlab-runner是否启动
+ps -ef|grep gitlab-runner
+```
+
+*在gitlab新建项目
+1）采用root登录后新建一个名称为gavin的用户
+2）登录gavin用户，新建一个名称为testgolang的项目
+
+
+* 注册gitlab-runner，和gitlab打通
+
+
 
 2. 装有`docker`和`gitlab-runner`环境的云服务器（这里用到CentOS 7 64位）
 > gitlab-runner安装方法:
