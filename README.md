@@ -1,6 +1,9 @@
 ### gitlab-cicd   快速掌握并使用gitlab-ci工具快速代码编译、集成和发布
 
-说明：本项目出处为https://github.com/yangshun2005/gitlab-cicd。本人只是在此基础上修改和完善。
+说明：本项目出处为如下地址。本人只是在此基础上修改和完善。
+```
+from https://github.com/yangshun2005/gitlab-cicd
+```
 
 
 [课程学习源码和文档](https://github.com/yangshun2005/gitlab-cicd)
