@@ -9,7 +9,7 @@
 
 ### 一、项目概述
 
-1.准备工作
+#### 1.准备工作
 
 1.1. gitlab环境：代码仓库和编译器
 
@@ -21,13 +21,13 @@
 
 1.5. .gitlab-ci.yml ：CI/CD的gitlab机器运行逻辑的操作文档
 
-2.环境配置
+#### 2.环境配置
 
 2.1. 准备一台，为项目注册执行部署任务的Gitlab-Runner服务器
 
 2.2. 将runner机器与gitlab的cicd`注册`,完成链接并打通
 
-三、提交更新并自动部署到服务器，测试地址：http://127.0.0.1:8001
+#### 3.提交更新并自动部署到服务器，测试地址：http://192.168.2.100:8001
 
 3.1. 提交代码到git golang分支
 
@@ -43,7 +43,7 @@
 |gitlab|192.168.2.200|CenOS 7.6 64bit|gitlab-10.0.0|
 |gitlab-runner|192.168.2.100|CenOS 7.6 64bit|gitlab-runner,docker-ce,git|
 
-1.Linux安装gitlab（192.168.2.200）
+#### 1.Linux安装gitlab（192.168.2.200）
 
 这里采用rpm方式安装gitlab。
 ```
@@ -62,13 +62,13 @@ gitlab-ctl reconfigure
 http://192.168.2.200:8081         #提示修改root密码
 ```
 
-2.安装docker-ce和gitlab-runner(192.168.2.100)
+#### 2.安装docker-ce和gitlab-runner(192.168.2.100)
 
-* 安装docker-ce
+* 安装docker-ce（192.168.2.100）
 >docker-ce安装方法:
 >> https://www.cnblogs.com/mengyucloud/p/12240033.html
 
-* 安装gitlab-runner
+* 安装gitlab-runner（192.168.2.100）
 ```
 1)下载gitlab-runner文件并上传到192.168.2.100机器上的指定目录，这里上传到/root/software/
 根据操作系统版本选择指定的文件，这里选择Linux的rpm包进行安装。
@@ -81,24 +81,47 @@ rpm -ivh gitlab-runner_amd64.rpm
 ps -ef|grep gitlab-runner
 ```
 
-*在gitlab新建项目
-1）采用root登录后新建一个名称为gavin的用户
-2）登录gavin用户，新建一个名称为testgolang的项目
+* 在gitlab上新建项目（192.168.2.200）
+```
+1.采用root登录后新建一个名称为gavin的用户
+2.登录gavin用户，新建一个名称为testgolang的项目
+```
+![img](./imgs/1gitlab.jpg)
+```
+3.在新建项目上查看gitlab-runner的地址和token，并记录下来
+进入项目：Settings>CI/CD
+```
+![img](./imgs/2gitlab.jpg)
+![img](./imgs/3gitlab.jpg)
 
+* 注册gitlab-runner，和gitlab打通（192.168.2.100）
+>gitlab-runner注册方式：
+>>  https://docs.gitlab.com/runner/register/index.html
 
-* 注册gitlab-runner，和gitlab打通
+![img](./imgs/4gitlab.jpg)
 
+打通完成后，可以看到如下信息：
+![img](./imgs/5gitlab.jpg)
 
+* 设置权限，使gitlab有权限在本机操作（192.168.2.100）
+```
+sudo groupadd docker                     #添加docker用户组
+sudo gpasswd -a gitlab-runner docker     #将登陆用户加入到docker用户组中
+newgrp docker                            #更新用户组
+su gitlab-runner                         #切换到runner用户组
+docker ps                                #测试docker命令是否可以使用sudo正常使用
+```
 
-2. 装有`docker`和`gitlab-runner`环境的云服务器（这里用到CentOS 7 64位）
-> gitlab-runner安装方法:
->> https://docs.gitlab.com/runner/install/osx.html
+#### 3.项目代码说明
 
-3. 项目代码，这里我使用Golang作为开发语言，其它开发语言也一样的操作流程
+* 项目代码，这里我使用Golang作为开发语言，其它开发语言也一样的操作流程
 ![img](./imgs/WX20200226-162255@2x.png)
 
+* 代码文件说明
+```
+`Dockerfile`文件
+```
 
-4. `Dockerfile`文件
 ```
 # 镜像文件
 FROM golang:latest
@@ -119,7 +142,10 @@ EXPOSE 8001
 ENTRYPOINT ["./testgolang"]
 ```
 
-5. `.gitlab-ci.yml`文件
+```
+`.gitlab-ci.yml`文件
+```
+
 ```
 stages:
   - deploy
@@ -131,54 +157,31 @@ docker-deploy:
 # 通过Dockerfile生成cicd-demo镜像
     - docker build -t testgolang .
 # 删除已经在运行的容器
-    - if [ $(docker ps -aq --filter name= testgolang) ]; then docker rm -f testgolang;fi
+    - if [ $(docker ps -qa --filter name=testgolang) ]; then docker rm -f testgolang;fi
 # 通过镜像启动容器，并把本机8000端口映射到容器8000端口
     - docker run -d -p 8001:8001 --name testgolang testgolang
   tags:
 # 执行Job的服务器
-    - mbp13
+    - vm192.168.2.100
   only:
 # 只有在golang分支才会执行
     - golang
 ```
 
-### 二、环境配置
-
-1. 为项目注册执行部署任务的Runner服务器
-因为我已经配置过了，所以下面面有runner，runner的标签是多runner执行任务时区分的标识，后面部署过程我会使用标签为 `mbp13`服务器来执行`job`，下面会截图配置过程。
-![img](./imgs/WX20200226-163135@2x.png)
-
-2. 将runner机器与gitlab的cicd链接并注册打通
-> 查看地址和gitlab-ci的token
-
-![img](./imgs/WX20200226-163220@2x.png)
-
-> 在runner机器上设置
-`实际就是runner要向gitlab服务发起register`
->> https://docs.gitlab.com/runner/register/index.html
-
-![img](./imgs/WX20200226-161907@2x.png)
- 
-> 补充：
-
-```
-sudo groupadd docker     #添加docker用户组
-sudo gpasswd -a gitlab-runner docker     #将登陆用户加入到docker用户组中
-newgrp docker     #更新用户组
-su gitlab-runner #切换到runner用户组
-docker ps    #测试docker命令是否可以使用sudo正常使用
-```
 
 ### 三、提交更新并自动部署到服务器
+
+#### 1.从本仓库下载testgolang文件夹，上传到192.168.2.100主机的/root/project/目录下
+
 runner注册成功后，通过git命令提交更新到golang分支，只要golang分支有修改，都会执行Job的任务。
 > git push 代码到`golang分支`, gitlab-ci的功能自动扫描`.gitlai-ci.yml`文件，并启动
-![img](./imgs/WX20200226-163625@2x.png)
+![img](./imgs/6gitlab.jpg)
 > 最终的执行结果gitlab的CI/CD菜单里的`jobs`里呈现
-![img](./imgs/WWX20200226-163830@2x.png)
+![img](./imgs/7gitlab.jpg)
 
 ### 四、访问
 最后，通过链接 `http://127.0.0.1:8001/hello` 可以看到服务器已经部署代码并且可以正常访问了
-![img](./imgs/WX20200226-163906@2x.png)
+![img](./imgs/8gitlab.jpg)
 
 > 补充： docker 部署gitlab服务
 
