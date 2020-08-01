@@ -4,7 +4,7 @@
 ```
 from https://github.com/yangshun2005/gitlab-cicd
 ```
-
+---
 
 [课程学习源码和文档](https://github.com/yangshun2005/gitlab-cicd)
 
@@ -38,6 +38,7 @@ from https://github.com/yangshun2005/gitlab-cicd
 
 3.3 测试结果
 
+---
 
 ### 二、准备工作
 
@@ -171,6 +172,7 @@ docker-deploy:
     - golang
 ```
 
+---
 
 ### 三、提交更新并自动部署到服务器
 
@@ -184,6 +186,8 @@ runner注册成功后，通过git命令提交更新到golang分支，只要golan
 ![img](./imgs/6gitlab.jpg)
 > 最终的执行结果gitlab的CI/CD菜单里的`jobs`里呈现
 ![img](./imgs/7gitlab.jpg)
+
+---
 
 ### 四、访问
 最后，通过链接 `http://127.0.0.1:8001/hello` 可以看到服务器已经部署代码并且可以正常访问了
